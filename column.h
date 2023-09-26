@@ -18,9 +18,7 @@ class column
 public:
     column(const std::string& name);
     virtual bool validate(const std::string& value) = 0;
-    TYPE get_type(){
-        return type_;
-    }
+    TYPE get_type();
 protected:
     TYPE type_;
 

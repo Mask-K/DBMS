@@ -1,11 +1,16 @@
 #ifndef COLUMN_STRING_INTERVAL_H
 #define COLUMN_STRING_INTERVAL_H
 
+#include "column.h"
 
-class column_string_interval
+class column_string_interval : public column
 {
 public:
-    column_string_interval();
+    column_string_interval(const std::string& name);;
+    bool validate(const std::string value);
+
+private:
+    void remove_spaces(std::string& val);
 };
 
 #endif // COLUMN_STRING_INTERVAL_H

@@ -1,11 +1,14 @@
 #ifndef COLUMN_STRING_H
 #define COLUMN_STRING_H
 
+#include "column.h"
 
-class column_string
+class column_string : public column
 {
 public:
-    column_string();
+    column_string(const std::string& name);
+
+    bool validate(const std::string value);
 };
 
 #endif // COLUMN_STRING_H
