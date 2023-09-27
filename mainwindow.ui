@@ -11,11 +11,50 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>DBMS</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>База даних</string>
+    </property>
+    <addaction name="createDb"/>
+    <addaction name="openDb"/>
+    <addaction name="saveDb"/>
+    <addaction name="deleteDb"/>
+   </widget>
+   <addaction name="menu"/>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="createDb">
+   <property name="text">
+    <string>Створити</string>
+   </property>
+  </action>
+  <action name="openDb">
+   <property name="text">
+    <string>Відкрити</string>
+   </property>
+  </action>
+  <action name="saveDb">
+   <property name="text">
+    <string>Зберегти</string>
+   </property>
+  </action>
+  <action name="deleteDb">
+   <property name="text">
+    <string>Видалити</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

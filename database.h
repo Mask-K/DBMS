@@ -5,16 +5,18 @@
 
 #include "table.h"
 
+#include <QString>
+
 class database
 {
 public:
-    database(const std::string& name);
+    database(const QString& name);
 
-    std::string get_name();
+    QString get_name();
     std::vector<table> get_tables();
     void add_table(const table& table);
 private:
-    std::string name__;
+    QString name__;
     std::vector<table> tables__;
 };
 

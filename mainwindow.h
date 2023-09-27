@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "database_manager.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -15,7 +17,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_createDb_triggered();
+
+    void on_deleteDb_triggered();
+
 private:
     Ui::MainWindow *ui;
+    database_manager* manager__;
 };
 #endif // MAINWINDOW_H

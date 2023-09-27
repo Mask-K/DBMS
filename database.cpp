@@ -1,11 +1,11 @@
 #include "database.h"
 
-database::database(const std::string& name) : name__(name)
+database::database(const QString& name) : name__(name)
 {
 
 }
 
-std::string database::get_name(){return name__;}
+QString database::get_name(){return name__;}
 
 std::vector<table> database::get_tables(){return tables__;}
 
