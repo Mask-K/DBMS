@@ -6,8 +6,8 @@
 class column_string_interval : public column
 {
 public:
-    column_string_interval(const std::string& name);;
-    bool validate(const std::string value);
+    column_string_interval(const QString& name);;
+    bool validate(const std::string& value);
 
 private:
     void remove_spaces(std::string& val);

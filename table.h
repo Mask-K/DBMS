@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <QString>
 
 #include "row.h"
 #include "column.h"
@@ -10,7 +11,7 @@
 class table
 {
 public:
-    table(const std::string& name);
+    table(const QString& name);
     void add_row(const row& row);
     std::vector<row> get_rows();
 
@@ -18,7 +19,7 @@ public:
 
     std::vector<std::shared_ptr<column>> get_columns();
 private:
-    std::string name__;
+    QString name__;
     std::vector<row> rows__;
     std::vector<std::shared_ptr<column>> columns__;
 };

@@ -1,6 +1,6 @@
 #include "table.h"
 
-table::table(const std::string& name) : name__(name)
+table::table(const QString& name) : name__(name)
 {
 
 }

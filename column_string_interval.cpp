@@ -1,11 +1,11 @@
 #include "column_string_interval.h"
 
 
-column_string_interval::column_string_interval(const std::string &name): column(name){
+column_string_interval::column_string_interval(const QString &name): column(name){
     type_ = TYPE::STRINGINVL;
 }
 
-bool column_string_interval::validate(const std::string value){
+bool column_string_interval::validate(const std::string& value){
     size_t pos = value.find(',');
     if(pos == std::string::npos)
         return false;

@@ -1,6 +1,7 @@
 #ifndef COLUMN_H
 #define COLUMN_H
 
+#include <QString>
 #include <string>
 
 enum TYPE{
@@ -16,14 +17,14 @@ enum TYPE{
 class column
 {
 public:
-    column(const std::string& name);
+    column(const QString& name);
     virtual bool validate(const std::string& value) = 0;
     TYPE get_type();
 protected:
     TYPE type_;
 
 private:
-    std::string name__;
+    QString name__;
 
 };
 

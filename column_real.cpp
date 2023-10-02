@@ -2,11 +2,11 @@
 
 
 
-column_real::column_real(const std::string &name): column(name){
+column_real::column_real(const QString &name): column(name){
     type_ = TYPE::REAL;
 }
 
-bool column_real::validate(const std::string value){
+bool column_real::validate(const std::string& value){
     try{
         size_t pos;
         double val = std::stod(value, &pos);

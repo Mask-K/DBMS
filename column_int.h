@@ -6,8 +6,8 @@
 class column_int : public column
 {
 public:
-    column_int(const std::string& name);;
-    bool validate(const std::string value);
+    column_int(const QString& name);;
+    bool validate(const std::string& value);
 };
 
 #endif // COLUMN_INT_H

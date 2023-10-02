@@ -8,7 +8,7 @@
 class column_html : public column
 {
 public:
-    column_html(const std::string& name);
+    column_html(const QString& name);
     bool validate(const std::string& value);
 private:
     bool fileExists(const std::string& fileName);

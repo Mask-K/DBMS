@@ -1,6 +1,6 @@
 #include "column.h"
 
-column::column(const std::string& name) : name__(name)
+column::column(const QString& name) : name__(name)
 {
 
 }

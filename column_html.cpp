@@ -2,7 +2,7 @@
 
 
 
-column_html::column_html(const std::string &name) : column(name){type_ = TYPE::HTML;}
+column_html::column_html(const QString &name) : column(name){type_ = TYPE::HTML;}
 
 bool column_html::validate(const std::string &value){
     if(value.size() <= 5 || value.substr(value.size() - 4) != "html"

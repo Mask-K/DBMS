@@ -6,9 +6,9 @@
 class column_string : public column
 {
 public:
-    column_string(const std::string& name);
+    column_string(const QString& name);
 
-    bool validate(const std::string value);
+    bool validate(const std::string& value);
 };
 
 #endif // COLUMN_STRING_H
