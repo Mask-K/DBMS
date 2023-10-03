@@ -124,7 +124,11 @@ void MainWindow::on_pushButton_2_clicked()
         table t{enteredText};
         manager__->get_database()->add_table(t);
 
-        ui->tabWidget->insertTab(ui->tabWidget->count(), new QWidget(), QIcon(QString("")), enteredText);
+        QWidget *newTab = new QWidget();
+        QTableWidget *tableWidget = new QTableWidget(newTab);
+        ui->tabWidget->addTab(newTab, enteredText);
+        newTab->setLayout(new QVBoxLayout());
+        newTab->layout()->addWidget(tableWidget);
 
         ui->pushButton_3->setVisible(true);
         ui->pushButton_4->setVisible(true);
@@ -225,6 +229,53 @@ void MainWindow::on_pushButton_3_clicked()
         else
             col = new column_string_interval(columnName);
 
+        int currentTabIndex = ui->tabWidget->currentIndex();
+
+        if (currentTabIndex != -1) {
+            // Get the current tab widget
+            QWidget *currentTabWidget = ui->tabWidget->widget(currentTabIndex);
+
+            // Find the QTableWidget in the current tab widget
+            QTableWidget *currentTableWidget = currentTabWidget->findChild<QTableWidget *>();
+
+            if (currentTableWidget) {
+                // Now you can access the current QTableWidget and add columns to it
+                // For example, you can add a new column like this:
+                int columnIndex = currentTableWidget->columnCount();
+                currentTableWidget->setColumnCount(columnIndex + 1);
+                currentTableWidget->setHorizontalHeaderItem(columnIndex, new QTableWidgetItem(columnName + " [" + selectedType + "]"));
+
+                if (currentTableWidget->rowCount() == 0) {
+                    currentTableWidget->setRowCount(1);
+                }
+
+
+
+                connect(currentTableWidget, &QTableWidget::itemChanged, [=](QTableWidgetItem *item) {
+                    if (item->row() != currentTableWidget->rowCount() - 1) {
+                        // Якщо це не останній рядок
+                        int row = item->row();
+                        bool rowIsEmpty = true;
+
+                        for (int col = 0; col < currentTableWidget->columnCount(); ++col) {
+                            QTableWidgetItem *cell = currentTableWidget->item(row, col);
+                            if (cell && !cell->text().isEmpty()) {
+                                rowIsEmpty = false;
+                                break;
+                            }
+                        }
+
+                        // Видалення рядка, якщо всі клітинки рядка порожні
+                        if (rowIsEmpty) {
+                            currentTableWidget->removeRow(row);
+                        }
+                    } else if (item->row() == currentTableWidget->rowCount() - 1 && !item->text().isEmpty()) {
+                        // Додавання нового рядка, коли у останньому на той момент рядку ми додали клітинку
+                        currentTableWidget->setRowCount(currentTableWidget->rowCount() + 1);
+                    }
+                });
+            }
+        }
 
         dialog->accept();
     });
@@ -243,6 +294,7 @@ void MainWindow::on_pushButton_3_clicked()
     dialog->exec();
 
     // Пам'ятайте видалити діалогове вікно після закриття
+
     delete dialog;
 }
 
