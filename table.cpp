@@ -9,7 +9,7 @@ void table::add_row(const row &row){
     rows__.push_back(row);
 }
 
-std::vector<row> table::get_rows(){
+std::vector<row>& table::get_rows(){
     return rows__;
 }
 

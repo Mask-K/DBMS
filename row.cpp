@@ -1,6 +1,8 @@
 #include "row.h"
 
-row::row()
+row::row(int amount)
 {
-
+    for(int i = 0; i < amount; ++i){
+        add_cell();
+    }
 }

@@ -8,8 +8,8 @@
 class row
 {
 public:
-    row();
-    void add_cell(const std::string value){
+    row(int amount);
+    void add_cell(const std::string value = ""){
         values__.push_back(value);
     }
     std::string& operator[](int index){

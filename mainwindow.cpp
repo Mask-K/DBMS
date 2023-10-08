@@ -14,6 +14,8 @@
 #include <QMessageBox>
 #include <QComboBox>
 
+#include <string>
+#include <memory>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -52,10 +54,6 @@ void MainWindow::on_createDb_triggered()
 
     connect(okButton, &QPushButton::clicked, [&]() {
         QString enteredText = lineEdit->text();
-        if (enteredText.isEmpty()) {
-            QMessageBox::warning(this, "Помилка", "Введіть назву бази даних");
-            return;
-        }
 
         database *db = new database(enteredText);
         manager__->set_database(std::move(db));
@@ -116,10 +114,7 @@ void MainWindow::on_pushButton_2_clicked()
 
     connect(okButton, &QPushButton::clicked, [&]() {
         QString enteredText = lineEdit->text();
-        if (enteredText.isEmpty()) {
-            QMessageBox::warning(this, "Помилка", "Введіть назву таблиці");
-            return;
-        }
+
 
         table t{enteredText};
         manager__->get_database()->add_table(t);
@@ -190,7 +185,7 @@ void MainWindow::on_pushButton_3_clicked()
     QDialog *dialog = new QDialog(this);
     dialog->setWindowTitle("Додати колонку");
 
-    // Створення спадного меню для вибору типу колонки
+
     QComboBox *typeComboBox = new QComboBox(dialog);
 
     typeComboBox->addItem("INT");
@@ -200,47 +195,60 @@ void MainWindow::on_pushButton_3_clicked()
     typeComboBox->addItem("HTML");
     typeComboBox->addItem("STRINGINVL");
 
-    // Додайте інші варіанти типів за потреби
 
-    // Поле для введення назви колонки
     QLineEdit *nameLineEdit = new QLineEdit(dialog);
     nameLineEdit->setPlaceholderText("Назва колонки");
 
     QPushButton *okButton = new QPushButton("OK", dialog);
-    okButton->setEnabled(false); // Початково вимкнути кнопку OK
+    okButton->setEnabled(false);
 
     connect(okButton, &QPushButton::clicked, [=]() {
         QString selectedType = typeComboBox->currentText();
         QString columnName = nameLineEdit->text();
 
-        // Тут ви можете використовувати значення типу та назви колонки для додавання колонки в таблицю
-        // Виконайте необхідні дії для додавання колонки до вашої таблиці в базі даних
-        column* col;
+
+        std::shared_ptr<column> colPtr;
+
         if (selectedType == "INT")
-            col = new column_int(columnName);
+            colPtr = std::make_shared<column_int>(columnName);
         else if (selectedType == "REAL")
-            col = new column_real(columnName);
+            colPtr = std::make_shared<column_real>(columnName);
         else if (selectedType == "CHAR")
-            col = new column_char(columnName);
+            colPtr = std::make_shared<column_char>(columnName);
         else if (selectedType == "STRING")
-            col = new column_string(columnName);
+            colPtr = std::make_shared<column_string>(columnName);
         else if (selectedType == "HTML")
-            col = new column_html(columnName);
+            colPtr = std::make_shared<column_html>(columnName);
         else
-            col = new column_string_interval(columnName);
+            colPtr = std::make_shared<column_string_interval>(columnName);
+
+
 
         int currentTabIndex = ui->tabWidget->currentIndex();
 
-        if (currentTabIndex != -1) {
-            // Get the current tab widget
+        if(manager__->get_database()->get_table(currentTabIndex).get_columns().size()){
+            for(auto& r : manager__->get_database()->get_table(currentTabIndex).get_rows()){
+                r.add_cell();
+            }
+        }
+
+        manager__->get_database()->get_table(currentTabIndex).add_column(colPtr);
+
+
+
+        if(!currentTabIndex){
+            manager__->get_database()->get_table(currentTabIndex).add_row(row(1));
+        }
+
+
+        if (currentTabIndex != -1){
             QWidget *currentTabWidget = ui->tabWidget->widget(currentTabIndex);
 
-            // Find the QTableWidget in the current tab widget
+
             QTableWidget *currentTableWidget = currentTabWidget->findChild<QTableWidget *>();
 
             if (currentTableWidget) {
-                // Now you can access the current QTableWidget and add columns to it
-                // For example, you can add a new column like this:
+
                 int columnIndex = currentTableWidget->columnCount();
                 currentTableWidget->setColumnCount(columnIndex + 1);
                 currentTableWidget->setHorizontalHeaderItem(columnIndex, new QTableWidgetItem(columnName + " [" + selectedType + "]"));
@@ -252,8 +260,24 @@ void MainWindow::on_pushButton_3_clicked()
 
 
                 connect(currentTableWidget, &QTableWidget::itemChanged, [=](QTableWidgetItem *item) {
+
+                    {
+                        int row = item->row();
+                        int col = item->column();
+                        auto val = (item->text()).toStdString();
+
+                        if(val != ""){
+                            if(manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
+                                manager__->get_database()->get_table(ui->tabWidget->currentIndex())[col][row] = val;
+                            }
+                            else{
+                                item->setText("");
+                            }
+                        }
+                    }
+
                     if (item->row() != currentTableWidget->rowCount() - 1) {
-                        // Якщо це не останній рядок
+
                         int row = item->row();
                         bool rowIsEmpty = true;
 
@@ -265,18 +289,20 @@ void MainWindow::on_pushButton_3_clicked()
                             }
                         }
 
-                        // Видалення рядка, якщо всі клітинки рядка порожні
-                        if (rowIsEmpty) {
+
+                        if (rowIsEmpty && row >= 0) {
                             currentTableWidget->removeRow(row);
+                            manager__->get_database()->get_table(currentTabIndex).remove_row(row);
                         }
                     } else if (item->row() == currentTableWidget->rowCount() - 1 && !item->text().isEmpty()) {
-                        // Додавання нового рядка, коли у останньому на той момент рядку ми додали клітинку
+
                         currentTableWidget->setRowCount(currentTableWidget->rowCount() + 1);
+                        manager__->get_database()->get_table(ui->tabWidget->currentIndex()).add_row(row(currentTableWidget->columnCount()));
                     }
                 });
             }
-        }
 
+        }
         dialog->accept();
     });
 
@@ -285,15 +311,14 @@ void MainWindow::on_pushButton_3_clicked()
     layout->addWidget(nameLineEdit);
     layout->addWidget(okButton);
 
-    // Підключення слоту до сигналу textChanged
+
     connect(nameLineEdit, &QLineEdit::textChanged, [=](const QString &text) {
-        // Активувати/деактивувати кнопку OK залежно від наявності тексту у полі для введення
+
         okButton->setEnabled(!text.isEmpty());
     });
 
     dialog->exec();
 
-    // Пам'ятайте видалити діалогове вікно після закриття
 
     delete dialog;
 }
