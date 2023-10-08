@@ -268,7 +268,7 @@ void MainWindow::on_pushButton_3_clicked()
 
                         if(val != ""){
                             if(manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
-                                manager__->get_database()->get_table(ui->tabWidget->currentIndex())[col][row] = val;
+                                manager__->get_database()->get_table(ui->tabWidget->currentIndex())[row][col] = val;
                             }
                             else{
                                 item->setText("");
