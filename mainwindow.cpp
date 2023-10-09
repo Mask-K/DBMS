@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_2->setVisible(false);
     ui->pushButton_3->setVisible(false);
     ui->pushButton_4->setVisible(false);
+    ui->pushButton_5->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -50,7 +51,7 @@ void MainWindow::on_createDb_triggered()
     lineEdit->setPlaceholderText("Введіть назву бд");
 
     QPushButton *okButton = new QPushButton("OK", &dialog);
-    okButton->setEnabled(false); // Початково вимкнути кнопку OK
+    okButton->setEnabled(false);
 
     connect(okButton, &QPushButton::clicked, [&]() {
         QString enteredText = lineEdit->text();
@@ -62,12 +63,11 @@ void MainWindow::on_createDb_triggered()
         ui->pushButton->setVisible(true);
         ui->pushButton_2->setVisible(true);
 
+
         dialog.accept();
     });
 
-    // Підключення слоту до сигналу textChanged
     connect(lineEdit, &QLineEdit::textChanged, [&]() {
-        // Активувати/деактивувати кнопку OK залежно від наявності тексту у полі для введення
         okButton->setEnabled(!lineEdit->text().isEmpty());
     });
 
@@ -75,9 +75,7 @@ void MainWindow::on_createDb_triggered()
     layout.addWidget(lineEdit);
     layout.addWidget(okButton);
 
-    if (dialog.exec() == QDialog::Rejected) {
-        // Обробити випадок, коли користувач скасував діалог
-    }
+
 }
 
 
@@ -95,8 +93,8 @@ void MainWindow::on_deleteDb_triggered()
         delete db;
         manager__->set_database(nullptr);
         this->setWindowTitle("DBMS");
-        ui->pushButton->setVisible(true);
-        ui->pushButton_2->setVisible(true);
+        ui->pushButton->setVisible(false);
+        ui->pushButton_2->setVisible(false);
     }
 }
 
@@ -110,8 +108,7 @@ void MainWindow::on_pushButton_2_clicked()
     lineEdit->setPlaceholderText("Введіть назву таблиці");
 
     QPushButton *okButton = new QPushButton("OK", &dialog);
-    okButton->setEnabled(false); // Початково вимкнути кнопку OK
-
+    okButton->setEnabled(false);
     connect(okButton, &QPushButton::clicked, [&]() {
         QString enteredText = lineEdit->text();
 
@@ -127,23 +124,19 @@ void MainWindow::on_pushButton_2_clicked()
 
         ui->pushButton_3->setVisible(true);
         ui->pushButton_4->setVisible(true);
+        ui->pushButton_5->setVisible(true);
 
         dialog.accept();
     });
 
-    // Підключення слоту до сигналу textChanged
+
     connect(lineEdit, &QLineEdit::textChanged, [&]() {
-        // Активувати/деактивувати кнопку OK залежно від наявності тексту у полі для введення
         okButton->setEnabled(!lineEdit->text().isEmpty());
     });
 
     QVBoxLayout layout(&dialog);
     layout.addWidget(lineEdit);
     layout.addWidget(okButton);
-
-    if (dialog.exec() == QDialog::Rejected) {
-        // Обробити випадок, коли користувач скасував діалог
-    }
 }
 
 
@@ -170,9 +163,10 @@ void MainWindow::on_pushButton_clicked()
             if(!ui->tabWidget->count()){
                 ui->pushButton_3->setVisible(false);
                 ui->pushButton_4->setVisible(false);
+                ui->pushButton_5->setVisible(false);
             }
 
-            //
+
             delete widgetToRemove;
         }
     }
@@ -226,19 +220,9 @@ void MainWindow::on_pushButton_3_clicked()
 
         int currentTabIndex = ui->tabWidget->currentIndex();
 
-//        if(manager__->get_database()->get_table(currentTabIndex).get_columns().size()){
-//            for(auto& r : manager__->get_database()->get_table(currentTabIndex).get_rows()){
-//                r.add_cell();
-//            }
-//        }
 
         manager__->get_database()->get_table(currentTabIndex).add_column(colPtr);
 
-
-
-//        if(!currentTabIndex){
-//            manager__->get_database()->get_table(currentTabIndex).add_row(row(1));
-//        }
 
 
         if (currentTabIndex != -1){
@@ -266,19 +250,12 @@ void MainWindow::on_pushButton_3_clicked()
                         int col = item->column();
                         auto val = (item->text()).toStdString();
 
-                        if(val != ""){
-//                            if(manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
-//                                manager__->get_database()->get_table(ui->tabWidget->currentIndex())[row][col] = val;
-//                            }
-//                            else{
-//                                item->setText("");
-//                            }
 
-                            if(!manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
+
+                        if(val != "" && !manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
                                 item->setText("");}
-
                         }
-                    }
+
 
                     if (item->row() != currentTableWidget->rowCount() - 1) {
 
@@ -296,13 +273,11 @@ void MainWindow::on_pushButton_3_clicked()
 
                         if (rowIsEmpty && row >= 0) {
                             currentTableWidget->removeRow(row);
-                            //manager__->get_database()->get_table(currentTabIndex).remove_row(row);
-                        }
+                            }
                     } else if (item->row() == currentTableWidget->rowCount() - 1 && !item->text().isEmpty()) {
 
                         currentTableWidget->setRowCount(currentTableWidget->rowCount() + 1);
-                        //manager__->get_database()->get_table(ui->tabWidget->currentIndex()).add_row(row(currentTableWidget->columnCount()));
-                    }
+                   }
                 });
             }
 
@@ -328,4 +303,132 @@ void MainWindow::on_pushButton_3_clicked()
 }
 
 
+
+
+void MainWindow::on_pushButton_4_clicked()
+{
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Видалити колонку");
+
+    QLineEdit *indexLineEdit = new QLineEdit(&dialog);
+    indexLineEdit->setPlaceholderText("Введіть індекс колонки");
+
+    QPushButton *okButton = new QPushButton("OK", &dialog);
+    okButton->setEnabled(false);
+
+    connect(indexLineEdit, &QLineEdit::textChanged, [&]() {
+
+        okButton->setEnabled(!indexLineEdit->text().isEmpty());
+    });
+
+    connect(okButton, &QPushButton::clicked, [&]() {
+        bool ok;
+        int columnIndex = indexLineEdit->text().toInt(&ok);
+
+        if (!ok || columnIndex < 0) {
+            QMessageBox::warning(this, "Помилка", "Введіть дійсний позитивний індекс колонки.");
+        } else {
+
+            int currentTabIndex = ui->tabWidget->currentIndex();
+
+            if (currentTabIndex != -1) {
+
+                QWidget *currentTabWidget = ui->tabWidget->widget(currentTabIndex);
+                QTableWidget *currentTableWidget = currentTabWidget->findChild<QTableWidget *>();
+
+                if (currentTableWidget) {
+
+                    if (columnIndex < currentTableWidget->columnCount()) {
+
+                        currentTableWidget->removeColumn(columnIndex);
+
+
+                        manager__->get_database()->get_table(currentTabIndex).remove_column(columnIndex);
+                    } else {
+                        QMessageBox::warning(this, "Помилка", "Недійсний індекс колонки.");
+                    }
+                }
+            }
+
+
+            dialog.accept();
+        }
+    });
+
+    QVBoxLayout layout(&dialog);
+    layout.addWidget(indexLineEdit);
+    layout.addWidget(okButton);
+}
+
+
+void MainWindow::on_pushButton_5_clicked()
+{
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Cartesian Product");
+
+    QLineEdit *index1LineEdit = new QLineEdit(&dialog);
+    index1LineEdit->setPlaceholderText("Enter Index of Table 1");
+
+    QLineEdit *index2LineEdit = new QLineEdit(&dialog);
+    index2LineEdit->setPlaceholderText("Enter Index of Table 2");
+
+    QPushButton *okButton = new QPushButton("OK", &dialog);
+    okButton->setEnabled(false);
+
+    connect(index1LineEdit, &QLineEdit::textChanged, [&]() {
+
+        okButton->setEnabled(!index1LineEdit->text().isEmpty() && !index2LineEdit->text().isEmpty());
+    });
+
+    connect(index2LineEdit, &QLineEdit::textChanged, [&]() {
+
+        okButton->setEnabled(!index1LineEdit->text().isEmpty() && !index2LineEdit->text().isEmpty());
+    });
+
+    connect(okButton, &QPushButton::clicked, [&]() {
+        bool ok1, ok2;
+        int index1 = index1LineEdit->text().toInt(&ok1);
+        int index2 = index2LineEdit->text().toInt(&ok2);
+
+        if (!ok1 || !ok2 || index1 < 0 || index2 < 0) {
+            QMessageBox::warning(this, "Error", "Enter valid positive integers for table indexes.");
+        } else {
+
+            if (index1 < ui->tabWidget->count() && index2 < ui->tabWidget->count()) {
+                dialog.close();
+
+                QWidget *tabWidget1 = ui->tabWidget->widget(index1);
+                QWidget *tabWidget2 = ui->tabWidget->widget(index2);
+
+                QTableWidget* table1 = tabWidget1->findChild<QTableWidget *>();
+                QTableWidget* table2 = tabWidget2->findChild<QTableWidget *>();
+
+                QDialog resultDialog(this);
+                resultDialog.setWindowTitle("Cartesian Product Result");
+
+                QTableWidget *resultTableWidget = new QTableWidget(&resultDialog);
+
+                cartesian_product(table1, table2, resultTableWidget);
+
+                QVBoxLayout layout(&resultDialog);
+                layout.addWidget(resultTableWidget);
+
+
+                resultDialog.showMaximized();
+                resultDialog.exec();
+            } else {
+                QMessageBox::warning(this, "Error", "Table indexes are out of range.");
+            }
+        }
+    });
+
+    QVBoxLayout layout(&dialog);
+    layout.addWidget(index1LineEdit);
+    layout.addWidget(index2LineEdit);
+    layout.addWidget(okButton);
+
+    dialog.exec();
+}
 

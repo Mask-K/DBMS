@@ -27,6 +27,10 @@ public:
 
     void add_column(std::shared_ptr<column> column);
 
+    void remove_column(int index){
+        columns__.erase(columns__.begin() + index);
+    }
+
     std::vector<std::shared_ptr<column>> get_columns();
 
     void remove_row(int index){
