@@ -226,19 +226,19 @@ void MainWindow::on_pushButton_3_clicked()
 
         int currentTabIndex = ui->tabWidget->currentIndex();
 
-        if(manager__->get_database()->get_table(currentTabIndex).get_columns().size()){
-            for(auto& r : manager__->get_database()->get_table(currentTabIndex).get_rows()){
-                r.add_cell();
-            }
-        }
+//        if(manager__->get_database()->get_table(currentTabIndex).get_columns().size()){
+//            for(auto& r : manager__->get_database()->get_table(currentTabIndex).get_rows()){
+//                r.add_cell();
+//            }
+//        }
 
         manager__->get_database()->get_table(currentTabIndex).add_column(colPtr);
 
 
 
-        if(!currentTabIndex){
-            manager__->get_database()->get_table(currentTabIndex).add_row(row(1));
-        }
+//        if(!currentTabIndex){
+//            manager__->get_database()->get_table(currentTabIndex).add_row(row(1));
+//        }
 
 
         if (currentTabIndex != -1){
@@ -267,12 +267,16 @@ void MainWindow::on_pushButton_3_clicked()
                         auto val = (item->text()).toStdString();
 
                         if(val != ""){
-                            if(manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
-                                manager__->get_database()->get_table(ui->tabWidget->currentIndex())[row][col] = val;
-                            }
-                            else{
-                                item->setText("");
-                            }
+//                            if(manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
+//                                manager__->get_database()->get_table(ui->tabWidget->currentIndex())[row][col] = val;
+//                            }
+//                            else{
+//                                item->setText("");
+//                            }
+
+                            if(!manager__->get_database()->get_table(ui->tabWidget->currentIndex()).get_column(col)->validate(val)){
+                                item->setText("");}
+
                         }
                     }
 
@@ -292,12 +296,12 @@ void MainWindow::on_pushButton_3_clicked()
 
                         if (rowIsEmpty && row >= 0) {
                             currentTableWidget->removeRow(row);
-                            manager__->get_database()->get_table(currentTabIndex).remove_row(row);
+                            //manager__->get_database()->get_table(currentTabIndex).remove_row(row);
                         }
                     } else if (item->row() == currentTableWidget->rowCount() - 1 && !item->text().isEmpty()) {
 
                         currentTableWidget->setRowCount(currentTableWidget->rowCount() + 1);
-                        manager__->get_database()->get_table(ui->tabWidget->currentIndex()).add_row(row(currentTableWidget->columnCount()));
+                        //manager__->get_database()->get_table(ui->tabWidget->currentIndex()).add_row(row(currentTableWidget->columnCount()));
                     }
                 });
             }
