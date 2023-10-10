@@ -76,6 +76,7 @@ void MainWindow::on_createDb_triggered()
     layout.addWidget(okButton);
 
 
+    dialog.exec();
 }
 
 
@@ -137,6 +138,8 @@ void MainWindow::on_pushButton_2_clicked()
     QVBoxLayout layout(&dialog);
     layout.addWidget(lineEdit);
     layout.addWidget(okButton);
+
+    dialog.exec();
 }
 
 
@@ -359,6 +362,8 @@ void MainWindow::on_pushButton_4_clicked()
     QVBoxLayout layout(&dialog);
     layout.addWidget(indexLineEdit);
     layout.addWidget(okButton);
+
+    dialog.exec();
 }
 
 
