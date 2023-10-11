@@ -13,6 +13,12 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <QComboBox>
+#include <QFileDialog>
+
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFile>
 
 #include <string>
 #include <memory>
@@ -436,4 +442,148 @@ void MainWindow::on_pushButton_5_clicked()
 
     dialog.exec();
 }
+
+void MainWindow::cartesian_product(QTableWidget* left, QTableWidget* right, QTableWidget* result){
+    int leftRows = left->rowCount();
+    int leftCols = left->columnCount();
+
+
+    int rightRows = right->rowCount();
+    int rightCols = right->columnCount();
+
+    result->setRowCount(leftRows * rightRows);
+    result->setColumnCount(leftCols + rightCols);
+
+    for (int i = 0; i < leftCols; ++i) {
+        QTableWidgetItem* headerItem = left->horizontalHeaderItem(i);
+        if (headerItem) {
+            result->setHorizontalHeaderItem(i, new QTableWidgetItem(headerItem->text()));
+        }
+    }
+    for (int i = 0; i < rightCols; ++i) {
+        QTableWidgetItem* headerItem = right->horizontalHeaderItem(i);
+        if (headerItem) {
+            result->setHorizontalHeaderItem(leftCols + i, new QTableWidgetItem(headerItem->text()));
+        }
+    }
+
+    int resultRowIndex = 0;
+    for (int leftRowIndex = 0; leftRowIndex < leftRows; ++leftRowIndex) {
+        for (int rightRowIndex = 0; rightRowIndex < rightRows; ++rightRowIndex) {
+            for (int leftColIndex = 0; leftColIndex < leftCols; ++leftColIndex) {
+                QTableWidgetItem* leftItem = left->item(leftRowIndex, leftColIndex);
+                if (leftItem) {
+                    result->setItem(resultRowIndex, leftColIndex, new QTableWidgetItem(leftItem->text()));
+                }
+            }
+            for (int rightColIndex = 0; rightColIndex < rightCols; ++rightColIndex) {
+                QTableWidgetItem* rightItem = right->item(rightRowIndex, rightColIndex);
+                if (rightItem) {
+                    result->setItem(resultRowIndex, leftCols + rightColIndex, new QTableWidgetItem(rightItem->text()));
+                }
+            }
+            ++resultRowIndex;
+        }
+    }
+}
+
+
+void MainWindow::on_saveDb_triggered()
+{
+    QString filePath = QFileDialog::getSaveFileName(this, "Save Database as JSON", "", "JSON Files (*.json)");
+
+    if (!filePath.isEmpty()) {
+        // Check if the user provided a .json extension, and add it if missing
+        if (!filePath.endsWith(".json", Qt::CaseInsensitive)) {
+            filePath += ".json";
+        }
+
+        // Save the database to the selected JSON file
+        bool success = saveDb(filePath);
+
+        if (success) {
+            QMessageBox::information(this, "Success", "Database saved to JSON file.");
+        } else {
+            QMessageBox::warning(this, "Error", "Failed to save the database to JSON file.");
+        }
+    }
+}
+
+bool MainWindow::saveDb(QString filePath)
+{
+    // Create a JSON object to represent your database
+    QJsonObject dbObject;
+    QJsonArray tablesArray;
+
+    int tabCount = ui->tabWidget->count();
+
+    for (int tabIndex = 0; tabIndex < tabCount; ++tabIndex) {
+        QWidget* tabWidget = ui->tabWidget->widget(tabIndex);
+        QTableWidget* tableWidget = tabWidget->findChild<QTableWidget *>();
+        QJsonObject tableObject;
+        tableObject["table_name"] = ui->tabWidget->tabText(tabIndex);
+
+        QJsonArray columnTypesArray;
+
+        for(int tablecolInd = 0; tablecolInd < tableWidget->columnCount(); ++tablecolInd){
+            auto type = manager__->get_database()->get_table(tabIndex).get_column(tablecolInd)->get_type();
+            switch (type){
+            case TYPE::INT:
+                columnTypesArray.append("int");
+                break;
+            case TYPE::CHAR:
+                columnTypesArray.append("char");
+                break;
+            case TYPE::HTML:
+                columnTypesArray.append("html");
+                break;
+            case TYPE::REAL:
+                columnTypesArray.append("real");
+                break;
+            case TYPE::STRING:
+                columnTypesArray.append("string");
+                break;
+            case TYPE::STRINGINVL:
+                columnTypesArray.append("stringInvl");
+                break;
+            }
+        }
+        tableObject["columns"] = columnTypesArray;
+
+        int colCount = tableWidget->columnCount();
+        QJsonArray rowsArray;
+        for(int rowInd = 0; rowInd < tableWidget->rowCount() - 1; ++rowInd){
+            QJsonArray row;
+            for(int colInd = 0; colInd < colCount; ++colInd){
+                auto item = tableWidget->item(rowInd, colInd);
+                row.append(item->text());
+            }
+
+            rowsArray.append(row);
+        }
+        tableObject["rows"] = rowsArray;
+
+        tablesArray.append(tableObject);
+    }
+    dbObject[this->windowTitle()] = tablesArray;
+
+
+    // Create a JSON document from the database object
+    QJsonDocument jsonDocument(dbObject);
+
+    // Create a QFile for writing the JSON data
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        // Write the JSON data to the file
+        file.write(jsonDocument.toJson());
+        file.close();
+        return true; // File saved successfully
+    }
+    else
+    {
+        return false; // Error in opening or writing to the file
+    }
+}
+
 

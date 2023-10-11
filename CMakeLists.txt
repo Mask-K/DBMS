@@ -26,7 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         database.h database.cpp
         table.h table.cpp
         column.h column.cpp
-        row.h row.cpp
+
         column_int.h column_int.cpp
         column_real.h column_real.cpp
         column_char.h column_char.cpp
