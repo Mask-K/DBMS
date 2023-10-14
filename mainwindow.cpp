@@ -316,7 +316,6 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_4_clicked()
 {
-
     QDialog dialog(this);
     dialog.setWindowTitle("Видалити колонку");
 
@@ -327,7 +326,6 @@ void MainWindow::on_pushButton_4_clicked()
     okButton->setEnabled(false);
 
     connect(indexLineEdit, &QLineEdit::textChanged, [&]() {
-
         okButton->setEnabled(!indexLineEdit->text().isEmpty());
     });
 
@@ -352,14 +350,31 @@ void MainWindow::on_pushButton_4_clicked()
 
                         currentTableWidget->removeColumn(columnIndex);
 
-
                         manager__->get_database()->get_table(currentTabIndex).remove_column(columnIndex);
+
+                        // Adjusting the row count to remove empty rows
+                        int rowCount = currentTableWidget->rowCount();
+                        for (int row = rowCount - 2; row >= 1; --row) {
+                            bool hasData = false;
+                            for (int col = 0; col < currentTableWidget->columnCount(); ++col) {
+                                QTableWidgetItem *item = currentTableWidget->item(row, col);
+                                if (item && !item->text().isEmpty()) {
+                                    hasData = true;
+                                    break;
+                                }
+                            }
+                            if (!hasData) {
+                                currentTableWidget->removeRow(row);
+                            } else {
+                                break;
+                            }
+                        }
+
                     } else {
                         QMessageBox::warning(this, "Помилка", "Недійсний індекс колонки.");
                     }
                 }
             }
-
 
             dialog.accept();
         }
@@ -371,6 +386,7 @@ void MainWindow::on_pushButton_4_clicked()
 
     dialog.exec();
 }
+
 
 
 void MainWindow::on_pushButton_5_clicked()
@@ -447,7 +463,6 @@ void MainWindow::cartesian_product(QTableWidget* left, QTableWidget* right, QTab
     int leftRows = left->rowCount();
     int leftCols = left->columnCount();
 
-
     int rightRows = right->rowCount();
     int rightCols = right->columnCount();
 
@@ -468,8 +483,8 @@ void MainWindow::cartesian_product(QTableWidget* left, QTableWidget* right, QTab
     }
 
     int resultRowIndex = 0;
-    for (int leftRowIndex = 0; leftRowIndex < leftRows; ++leftRowIndex) {
-        for (int rightRowIndex = 0; rightRowIndex < rightRows; ++rightRowIndex) {
+    for (int leftRowIndex = 0; leftRowIndex < leftRows - (leftRows > 1 ? 1 : 0); ++leftRowIndex) {
+        for (int rightRowIndex = 0; rightRowIndex < rightRows - (rightRows > 1 ? 1 : 0); ++rightRowIndex) {
             for (int leftColIndex = 0; leftColIndex < leftCols; ++leftColIndex) {
                 QTableWidgetItem* leftItem = left->item(leftRowIndex, leftColIndex);
                 if (leftItem) {
@@ -486,6 +501,7 @@ void MainWindow::cartesian_product(QTableWidget* left, QTableWidget* right, QTab
         }
     }
 }
+
 
 
 void MainWindow::on_saveDb_triggered()
@@ -568,10 +584,8 @@ bool MainWindow::saveDb(QString filePath)
     dbObject[this->windowTitle()] = tablesArray;
 
 
-    // Create a JSON document from the database object
     QJsonDocument jsonDocument(dbObject);
 
-    // Create a QFile for writing the JSON data
     QFile file(filePath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
