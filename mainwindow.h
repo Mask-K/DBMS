@@ -38,6 +38,8 @@ private slots:
 
     void on_saveDb_triggered();
 
+    void on_openDb_triggered();
+
 private:
     Ui::MainWindow *ui;
     database_manager* manager__;

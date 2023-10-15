@@ -540,8 +540,10 @@ bool MainWindow::saveDb(QString filePath)
         tableObject["table_name"] = ui->tabWidget->tabText(tabIndex);
 
         QJsonArray columnTypesArray;
+        QJsonArray columnNamesArray;
 
         for(int tablecolInd = 0; tablecolInd < tableWidget->columnCount(); ++tablecolInd){
+            //columnNamesArray.append()
             auto type = manager__->get_database()->get_table(tabIndex).get_column(tablecolInd)->get_type();
             switch (type){
             case TYPE::INT:
@@ -597,6 +599,144 @@ bool MainWindow::saveDb(QString filePath)
     else
     {
         return false; // Error in opening or writing to the file
+    }
+}
+
+
+
+void MainWindow::on_openDb_triggered()
+{
+    if(manager__->get_database())
+        return;
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Open JSON Database", "", "JSON Files (*.json)");
+
+    if (!filePath.isEmpty()) {
+        QFile file(filePath);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QMessageBox::warning(this, "Error", "Failed to open the selected file.");
+            return;
+        }
+
+        // Read all data from the file
+        QTextStream fileStream(&file);
+        QString jsonString = fileStream.readAll();
+        file.close();
+
+        // Convert the JSON data to a QJsonObject
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
+        QJsonObject dbObject = jsonDoc.object();
+
+        {
+            auto dbName = dbObject.keys().first();
+            this->setWindowTitle(dbName);
+            database *db = new database(dbName);
+            manager__->set_database(std::move(db));
+        }
+
+
+
+        QJsonArray tablesArray = dbObject[dbObject.keys().first()].toArray();
+        int tableInd = 0;
+        for (const QJsonValue &tableValue : tablesArray) {
+            QJsonObject tableObject = tableValue.toObject();
+            QString tableName = tableObject["table_name"].toString();
+
+            table t{tableName};
+            manager__->get_database()->add_table(t);
+            // Create a new tab
+            QWidget* newTab = new QWidget();
+            ui->tabWidget->addTab(newTab, tableName);
+            newTab->setLayout(new QVBoxLayout());
+
+            // Create a table inside the tab
+            QTableWidget* newTable = new QTableWidget(newTab);
+            newTab->layout()->addWidget(newTable);
+
+
+            QJsonArray columnTypesArray = tableObject["columns"].toArray();
+            int colIndex = 0;
+            newTable->setColumnCount(columnTypesArray.count());
+
+            for (const auto& columnTypeValue : columnTypesArray) {
+                QString columnName = columnTypeValue.toString();
+
+                if (columnName == "int")
+                    manager__->get_database()->get_table(tableInd).add_column(std::make_shared<column_int>(columnName));
+                else if (columnName == "real")
+                    manager__->get_database()->get_table(tableInd).add_column(std::make_shared<column_real>(columnName));
+                else if (columnName == "char")
+                    manager__->get_database()->get_table(tableInd).add_column(std::make_shared<column_char>(columnName));
+                else if (columnName == "string")
+                    manager__->get_database()->get_table(tableInd).add_column(std::make_shared<column_string>(columnName));
+                else if (columnName == "html")
+                    manager__->get_database()->get_table(tableInd).add_column(std::make_shared<column_html>(columnName));
+                else
+                    manager__->get_database()->get_table(tableInd).add_column(std::make_shared<column_string_interval>(columnName));
+
+                newTable->setHorizontalHeaderItem(colIndex, new QTableWidgetItem(columnName));
+                ++colIndex;
+            }
+
+            // Add rows to the table based on the JSON data
+            QJsonArray rowsArray = tableObject["rows"].toArray();
+            int rowIndex = 0;
+            for (const QJsonValue& rowValue : rowsArray) {
+                QJsonArray rowData = rowValue.toArray();
+                newTable->insertRow(rowIndex);
+                int colIndex = 0;
+                for (const QJsonValue& dataValue : rowData) {
+                    QString cellData = dataValue.toString();
+                    newTable->setItem(rowIndex, colIndex, new QTableWidgetItem(cellData));
+                    ++colIndex;
+                }
+                ++rowIndex;
+            }
+            if(colIndex)
+                newTable->insertRow(rowIndex);
+
+            connect(newTable, &QTableWidget::itemChanged, [=](QTableWidgetItem *item) {
+
+                {
+                    int row = item->row();
+                    int col = item->column();
+                    auto val = (item->text()).toStdString();
+
+
+
+                    if(val != "" && !manager__->get_database()->get_table(tableInd).get_column(col)->validate(val)){
+                        item->setText("");}
+                }
+
+
+                if (item->row() != newTable->rowCount() - 1) {
+
+                    int row = item->row();
+                    bool rowIsEmpty = true;
+
+                    for (int col = 0; col < newTable->columnCount(); ++col) {
+                        QTableWidgetItem *cell = newTable->item(row, col);
+                        if (cell && !cell->text().isEmpty()) {
+                            rowIsEmpty = false;
+                            break;
+                        }
+                    }
+
+
+                    if (rowIsEmpty && row >= 0) {
+                        newTable->removeRow(row);
+                    }
+                } else if (item->row() == newTable->rowCount() - 1 && !item->text().isEmpty()) {
+
+                    newTable->setRowCount(newTable->rowCount() + 1);
+                }
+            });
+            ++tableInd;
+        }
+        ui->pushButton_3->setVisible(true);
+        ui->pushButton_4->setVisible(true);
+        ui->pushButton_5->setVisible(true);
+        QMessageBox::information(this, "Success", "Database loaded from JSON file.");
     }
 }
 
