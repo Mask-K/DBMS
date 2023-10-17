@@ -61,26 +61,26 @@ void DBMS::test_table_product(){
     leftTable.setItem(1, 0, new QTableWidgetItem("C"));
     leftTable.setItem(1, 1, new QTableWidgetItem("D"));
 
-    // Create test data for the right table
+
     QTableWidget rightTable;
     rightTable.setRowCount(2);
     rightTable.setColumnCount(1);
     rightTable.setItem(0, 0, new QTableWidgetItem("1"));
     rightTable.setItem(1, 0, new QTableWidgetItem("2"));
 
-    // Create a result table for the Cartesian product
+
     QTableWidget resultTable;
     cartesian_product(&leftTable, &rightTable, &resultTable);
 
-    // Verify the expected result
+
     QCOMPARE(resultTable.rowCount(), 4);
     QCOMPARE(resultTable.columnCount(), 3);
     QCOMPARE(resultTable.item(0, 0)->text(), QString("A"));
     QCOMPARE(resultTable.item(0, 1)->text(), QString("B"));
     QCOMPARE(resultTable.item(0, 2)->text(), QString("1"));
-    // Add more verification as needed
 
-    // Clean up allocated items
+
+
     for (int i = 0; i < resultTable.rowCount(); ++i) {
         for (int j = 0; j < resultTable.columnCount(); ++j) {
             delete resultTable.item(i, j);
@@ -90,10 +90,10 @@ void DBMS::test_table_product(){
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv); // Initialize QApplication
-    DBMS dbms; // Create an instance of your test class
+    QApplication app(argc, argv);
+    DBMS dbms;
 
-    int result = QTest::qExec(&dbms, argc, argv); // Run tests
+    int result = QTest::qExec(&dbms, argc, argv);
 
     return result;
 }
