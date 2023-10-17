@@ -1,0 +1,6 @@
+/home/maksym/uni4/IT/DBMS/build-Tests-Desktop_Qt_6_6_0_GCC_64bit-Debug/CMakeFiles/DBMS.dir
+/home/maksym/uni4/IT/DBMS/build-Tests-Desktop_Qt_6_6_0_GCC_64bit-Debug/CMakeFiles/test.dir
+/home/maksym/uni4/IT/DBMS/build-Tests-Desktop_Qt_6_6_0_GCC_64bit-Debug/CMakeFiles/edit_cache.dir
+/home/maksym/uni4/IT/DBMS/build-Tests-Desktop_Qt_6_6_0_GCC_64bit-Debug/CMakeFiles/rebuild_cache.dir
+/home/maksym/uni4/IT/DBMS/build-Tests-Desktop_Qt_6_6_0_GCC_64bit-Debug/CMakeFiles/DBMS_autogen_timestamp_deps.dir
+/home/maksym/uni4/IT/DBMS/build-Tests-Desktop_Qt_6_6_0_GCC_64bit-Debug/CMakeFiles/DBMS_autogen.dir

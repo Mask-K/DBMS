@@ -18,7 +18,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void cartesian_product(QTableWidget* left, QTableWidget* right, QTableWidget* result);
+
 
 private slots:
     void on_createDb_triggered();

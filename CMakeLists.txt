@@ -34,6 +34,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         column_html.h column_html.cpp
         column_string_interval.h column_string_interval.cpp
         database_manager.h database_manager.cpp
+        cartesian_product.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET DBMS APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

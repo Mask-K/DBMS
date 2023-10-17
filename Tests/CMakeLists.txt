@@ -18,7 +18,8 @@ add_executable(DBMS tst_dbms.cpp
     ../column.h ../column.cpp
 
     ../column_int.h ../column_int.cpp
-    ../column_real.h ../column_real.cpp)
+    ../column_real.h ../column_real.cpp
+    ../cartesian_product.h)
 add_test(NAME DBMS COMMAND DBMS)
 
 target_link_libraries(DBMS PRIVATE Qt${QT_VERSION_MAJOR}::Test)
