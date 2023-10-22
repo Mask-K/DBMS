@@ -16,6 +16,13 @@ public:
     std::vector<table> get_tables();
     void add_table(const table& table);
 
+    bool table_exists(const QString& name){
+        for(const auto& t : tables__){
+            if(t.getName() == name)
+                return true;
+        }
+        return false;
+    }
     void remove_table(const int& index){
         tables__.erase(tables__.begin()+index);
     }

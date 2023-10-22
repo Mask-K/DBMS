@@ -20,6 +20,9 @@ public:
     column(const QString& name);
     virtual bool validate(const std::string& value) = 0;
     TYPE get_type();
+    QString getName(){
+        return name__;
+    }
 protected:
     TYPE type_;
 

@@ -99,6 +99,8 @@ void MainWindow::on_deleteDb_triggered()
     if (reply == QMessageBox::Yes) {
         auto db = manager__->get_database();
         delete db;
+        ui->tabWidget->clear();
+
         manager__->set_database(nullptr);
         this->setWindowTitle("DBMS");
         ui->pushButton->setVisible(false);
@@ -120,6 +122,10 @@ void MainWindow::on_pushButton_2_clicked()
     connect(okButton, &QPushButton::clicked, [&]() {
         QString enteredText = lineEdit->text();
 
+        if(manager__->get_database()->table_exists(enteredText)) {
+            QMessageBox::critical(this, "Помилка", "Таблиця з таким ім'ям вже існує!");
+            return;
+        }
 
         table t{enteredText};
         manager__->get_database()->add_table(t);
@@ -230,7 +236,10 @@ void MainWindow::on_pushButton_3_clicked()
 
         int currentTabIndex = ui->tabWidget->currentIndex();
 
-
+        if (manager__->get_database()->get_table(currentTabIndex).column_exists(columnName)) {
+            QMessageBox::critical(this, "Помилка", "Колонка з таким ім'ям вже існує!");
+            return;
+        }
         manager__->get_database()->get_table(currentTabIndex).add_column(colPtr);
 
 
@@ -267,7 +276,7 @@ void MainWindow::on_pushButton_3_clicked()
                         }
 
 
-                    if (item->row() != currentTableWidget->rowCount() - 1) {
+                        if (item->row() < currentTableWidget->rowCount() - 1) {
 
                         int row = item->row();
                         bool rowIsEmpty = true;
@@ -281,8 +290,10 @@ void MainWindow::on_pushButton_3_clicked()
                         }
 
 
-                        if (rowIsEmpty && row >= 0) {
+                        if (rowIsEmpty &&  row >= 0) {
+                            currentTableWidget->blockSignals(true);
                             currentTableWidget->removeRow(row);
+                            currentTableWidget->blockSignals(false);
                             }
                     } else if (item->row() == currentTableWidget->rowCount() - 1 && !item->text().isEmpty()) {
 
